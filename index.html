@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>CHAT - VUE - NODE JS</title>
+
+</head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="public/chat.css">
+<body>
+<br><br>
+<div class="container" id="chat">
+     <div class="panel panel-default">
+       <div class="panel-heading">SOHBET TEST</div>
+       <div class="panel-body">
+        Kullanıcı adınız : 
+
+         <input v-model="user_name" placeholder="Kullanıcı adınızı giriniz">
+       </div>
+     </div>
+
+<hr>
+
+     <div class="panel panel-default">
+       <div class="panel-body">
+        
+    
+    <ul id="messages" v-repeat="message: messages">
+         <li>{{ message }}</li>
+    </ul> 
+
+
+<hr>
+     <form v-on="submit: send">
+     <div class="form-group col-lg-5">
+          <input v-model="message" class="form-control">
+          <button>Send</button>
+     </div>
+     </form>
+
+          </div>
+     </div>
+
+
+</div><!-- Container -->
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/0.12.15/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+
+     var socket=io();
+const shop = [
+  {
+    name: "One-Punch Man, Vol. 5",
+    price: 10.02,
+    quantity: 0
+  },
+  {
+    name: "Batman '66, Vol. 5",
+    price: 9.98,
+    quantity: 0
+  },
+  {
+    name: "Dragon Ball Freeza Arc, Vol. 1",
+    price: 15.98,
+    quantity: 0
+  },
+  {
+    name: "Uzumaki: Spiral into Horror, Vol. 1",
+    price: 4.84,
+    quantity: 0
+  },
+  {
+    name: "Superman: Red Son (New Edition)",
+    price: 10.93,
+    quantity: 0
+  }
+];
+
+     new Vue({
+          el: '#chat',
+
+          data: {
+
+               messages:[],
+               message: '',
+               user_name:'',
+               products:shop
+          },
+
+          ready:function()
+          {
+               socket.on('chat.message',function(data)
+               {    
+                    if (data.err==false)
+                    {
+                         this.messages.push(data.name+' - '+data.msg);
+                    }
+                    else
+                    {
+                         this.messages.push(data.errMsg);
+                    }
+               }.bind(this));
+          },
+
+          methods: {
+
+               send: function(e) {
+
+                    socket.emit('chat.message',{msg:this.message,name:this.user_name});
+                    this.message='';
+                    e.preventDefault();
+               },
+               setName:function()
+               {
+                    alert();
+               }
+          }
+     })
+
+</script>
+
+</body>
+</html>
