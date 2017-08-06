@@ -93,7 +93,7 @@ const shop = [
           {
                socket.on('chat.message',function(data)
                {    
-                    if (data.err==false)
+                    if (data.errors==undefined)
                     {
                          this.messages.push(data.name+' - '+data.msg);
                     }
@@ -101,6 +101,7 @@ const shop = [
                     {
                          this.messages.push(data.errMsg);
                     }
+                    //console.log(data.errors);
                }.bind(this));
           },
 

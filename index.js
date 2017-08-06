@@ -3,7 +3,9 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var Validator = require('jsonschema').Validator;
+//var Validator = require('jsonschema').Validator;
+
+var Ajv = require('ajv');
 
 server.listen(3000,'0.0.0.0');
 
@@ -20,17 +22,11 @@ io.on('connection',function(socket)
      socket.on('chat.message',function(data)
      {    
           
-          var v = new Validator();
-          var schema = {"type": "number"};
-          var val=v.validate(data, schema);
+         var ajv = new Ajv();
+         var validate = ajv.compile({ "type": "string","minLength":3});
+         var valid = validate(data.msg);
+         if (!valid) console.log(validate.errors);
 
-          if (val.message!=undefined)
-          {
-               data={err:true,errMsg:'HATA'};
-          }
-           
-          console.log(val.message);
-          console.log(val);
           io.emit('chat.message',data);
      });
 
