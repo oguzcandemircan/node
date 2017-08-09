@@ -25,8 +25,8 @@
        <div class="panel-body">
         
     
-    <ul id="messages" v-repeat="message: messages">
-         <li>{{ message }}</li>
+    <ul id="messages">
+         <li v-repeat="message: messages">{{ message }}</li>
     </ul> 
 
 
@@ -37,7 +37,7 @@
           <button>Send</button>
      </div>
      </form>
-
+     <div class="btn btn-primary" v-on="click: notification">bildirim gönder</div>
           </div>
      </div>
 
@@ -49,7 +49,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
-     var socket=io();
+     var socket=io('localhost:3000');
 const shop = [
   {
     name: "One-Punch Man, Vol. 5",
@@ -93,16 +93,12 @@ const shop = [
           {
                socket.on('chat.message',function(data)
                {    
-                    if (data.errors==undefined)
-                    {
-                         this.messages.push(data.name+' - '+data.msg);
-                    }
-                    else
-                    {
-                         this.messages.push(data.errMsg);
-                    }
-                    //console.log(data.errors);
+                    this.messages.push(data.name+' - '+data.msg);
+                    this.notification(data.msg,data.name);
+
                }.bind(this));
+
+               this.fetchData();
           },
 
           methods: {
@@ -116,9 +112,74 @@ const shop = [
                setName:function()
                {
                     alert();
+               },
+               notification:function(msg,title)
+               {
+                    setNotification(msg,title);
+               },
+               fetchData:function()
+               {    
+                    var m=this.messages;
+                    $.ajax({
+                         type:"GET",
+                         url:"http://localhost:3000/chat",
+                         dataType:"json",
+                         success:function(data)
+                         {
+                              $.each(data,function(x,i)
+                              {    
+                                   m.push(i.name+' - '+i.msg);
+
+                              });
+                         }
+                    });
                }
           }
      })
+
+var uu="http://localhost:3000";
+function setNotification (msg,title) {
+  // İlk kontrol tarayıcının bu özelliği destekleyip desteklemediğini sorgulamak
+  if (!("Notification" in window)) {
+    alert("Bu tarayıcı web bilgilendirme özelliğini desteklemiyor.");
+  } 
+
+  // Daha önce kullanıcı izin verdi ise
+  else if (Notification.permission === "granted") {
+    // Bilgilendirme popup'ını çıkaralım.
+    var notification = new Notification(title, {
+      body: msg, 
+      icon: 'http://fatihhayrioglu.com/favicon.png',
+      tag: 'demo',
+      dir: 'auto',
+      lang: ''
+    });
+  }
+  
+  // Eğer onay yoksa
+  else if (Notification.permission !== 'denied') {
+    // Kullanıcıdan onay ise
+    Notification.requestPermission(function (permission) {
+      // Kullanıcı onaylamadı ise tekrar soralım
+      if (permission === "granted") {
+        // onaylarsa bilgilendirme popup'ı aç
+        var notification = new Notification(title, {
+          body: msg, 
+          icon: 'http://fatihhayrioglu.com/favicon.png',
+          tag: 'demo',
+          dir: 'auto',
+          lang: ''
+        });
+       }
+    });
+  }
+
+  notification.onclick = function () {
+
+                window.open(uu);
+
+                }
+}
 
 </script>
 
