@@ -49,7 +49,7 @@ io.on('connection',function(socket)
 
      socket.on('disconnect',function()
      {
-          io.emit('chat.message','User Has disconnect') ; 
+          //io.emit('chat.message','User Has disconnect') ; 
      });
 });
 

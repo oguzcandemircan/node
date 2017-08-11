@@ -4,9 +4,18 @@
      <title>CHAT - VUE - NODE JS</title>
 
 </head>
-<!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="public/chat.css">
+
+<style type="text/css">
+     
+     *
+     {
+          list-style: none;
+     }
+
+</style>
+
 <body>
 <br><br>
 <div class="container" id="chat">
@@ -24,9 +33,8 @@
      <div class="panel panel-default">
        <div class="panel-body">
         
-    
     <ul id="messages">
-         <li v-repeat="message: messages">{{ message }}</li>
+         <li v-repeat="m in messages">kullanıcı adı : {{ m.name }} <br> mesaj : {{ m.msg }}</li>
     </ul> 
 
 
@@ -37,7 +45,7 @@
           <button>Send</button>
      </div>
      </form>
-     <div class="btn btn-primary" v-on="click: notification">bildirim gönder</div>
+     <!--<div class="btn btn-primary" v-on="click: notification">bildirim gönder</div>-->
           </div>
      </div>
 
@@ -49,34 +57,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
-     var socket=io('localhost:3000');
-const shop = [
-  {
-    name: "One-Punch Man, Vol. 5",
-    price: 10.02,
-    quantity: 0
-  },
-  {
-    name: "Batman '66, Vol. 5",
-    price: 9.98,
-    quantity: 0
-  },
-  {
-    name: "Dragon Ball Freeza Arc, Vol. 1",
-    price: 15.98,
-    quantity: 0
-  },
-  {
-    name: "Uzumaki: Spiral into Horror, Vol. 1",
-    price: 4.84,
-    quantity: 0
-  },
-  {
-    name: "Superman: Red Son (New Edition)",
-    price: 10.93,
-    quantity: 0
-  }
-];
+     var socket=io();
 
      new Vue({
           el: '#chat',
@@ -85,15 +66,14 @@ const shop = [
 
                messages:[],
                message: '',
-               user_name:'',
-               products:shop
+               user_name:''
           },
 
           ready:function()
           {
                socket.on('chat.message',function(data)
                {    
-                    this.messages.push(data.name+' - '+data.msg);
+                    this.messages.push({name:data.name,msg:data.msg});
                     this.notification(data.msg,data.name);
 
                }.bind(this));
@@ -122,14 +102,13 @@ const shop = [
                     var m=this.messages;
                     $.ajax({
                          type:"GET",
-                         url:"http://localhost:3000/chat",
+                         url:"http://192.168.1.152:3000/chat",
                          dataType:"json",
                          success:function(data)
                          {
                               $.each(data,function(x,i)
                               {    
-                                   m.push(i.name+' - '+i.msg);
-
+                                   m.push({name:i.name,msg:i.msg});
                               });
                          }
                     });
@@ -139,14 +118,11 @@ const shop = [
 
 var uu="http://localhost:3000";
 function setNotification (msg,title) {
-  // İlk kontrol tarayıcının bu özelliği destekleyip desteklemediğini sorgulamak
   if (!("Notification" in window)) {
     alert("Bu tarayıcı web bilgilendirme özelliğini desteklemiyor.");
   } 
 
-  // Daha önce kullanıcı izin verdi ise
   else if (Notification.permission === "granted") {
-    // Bilgilendirme popup'ını çıkaralım.
     var notification = new Notification(title, {
       body: msg, 
       icon: 'http://fatihhayrioglu.com/favicon.png',
@@ -156,13 +132,9 @@ function setNotification (msg,title) {
     });
   }
   
-  // Eğer onay yoksa
   else if (Notification.permission !== 'denied') {
-    // Kullanıcıdan onay ise
     Notification.requestPermission(function (permission) {
-      // Kullanıcı onaylamadı ise tekrar soralım
       if (permission === "granted") {
-        // onaylarsa bilgilendirme popup'ı aç
         var notification = new Notification(title, {
           body: msg, 
           icon: 'http://fatihhayrioglu.com/favicon.png',
@@ -174,11 +146,11 @@ function setNotification (msg,title) {
     });
   }
 
-  notification.onclick = function () {
+     notification.onclick = function () {
 
-                window.open(uu);
+          window.open(uu);
 
-                }
+     }
 }
 
 </script>
